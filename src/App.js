@@ -1,24 +1,53 @@
-import logo from './logo.svg';
-import './App.css';
+import { createContext, useContext, useState, memo, useCallback } from 'react'
 
-function App() {
+const Context = createContext()
+
+const ContadorProvider = ({ children }) => {
+
+  const [contador, setContador] = useState(0)
+
+  const incrementar = useCallback(() => setContador(x => x + 1), [])
+  const decrementar = useCallback(() => setContador(x => x - 1), [])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Context.Provider value={{contador, incrementar, decrementar}}>
+      { children }
+    </Context.Provider>
+  )
+}
+
+const Incrementar = memo(() => {
+  console.log('incrementar');
+  const { incrementar } = useContext(Context)
+  return (
+    <button onClick={incrementar}>Incrementar</button>
+  )
+})
+
+const Decrementar = memo(() => {
+  console.log('decrementar');
+  const { decrementar } = useContext(Context)
+  return (
+    <button onClick={decrementar}>Decrementar</button>
+  )
+})
+
+const Label = () => {
+  console.log('label');
+  const { contador } = useContext(Context)
+  return (
+    <h1>{contador}</h1>
+  )
+}
+
+const App = () => {
+
+  return (
+    <ContadorProvider>
+      <Label />
+      <Incrementar />
+      <Decrementar />    
+    </ContadorProvider>
   );
 }
 
