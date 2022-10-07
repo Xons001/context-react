@@ -1,53 +1,50 @@
-import { createContext, useContext, useState, memo, useCallback } from 'react'
+import { createContext, Component, useContext } from 'react'
 
-const Context = createContext()
+const Context1 = createContext('mi primer context')
+const Context2 = createContext('mi segundo context')
 
-const ContadorProvider = ({ children }) => {
-
-  const [contador, setContador] = useState(0)
-
-  const incrementar = useCallback(() => setContador(x => x + 1), [])
-  const decrementar = useCallback(() => setContador(x => x - 1), [])
+const Provider = ({ children }) => {
 
   return (
-    <Context.Provider value={{contador, incrementar, decrementar}}>
-      { children }
-    </Context.Provider>
+    <Context1.Provider value={'valor 1'}>
+      <Context2.Provider value={'valor 2'}>
+        { children }
+      </Context2.Provider>
+    </Context1.Provider>
   )
 }
 
-const Incrementar = memo(() => {
-  console.log('incrementar');
-  const { incrementar } = useContext(Context)
-  return (
-    <button onClick={incrementar}>Incrementar</button>
-  )
-})
+class Componente extends Component {
 
-const Decrementar = memo(() => {
-  console.log('decrementar');
-  const { decrementar } = useContext(Context)
-  return (
-    <button onClick={decrementar}>Decrementar</button>
-  )
-})
+  render() {
+    return (
+      <Context1.Consumer>
+        {
+          valor1 =>
+            <Context2.Consumer>
+              {valor2 => <div>{`${valor1} ${valor2}`}</div>}
+            </Context2.Consumer>
+        }
+      </Context1.Consumer>
+    )
+  }
+}
 
-const Label = () => {
-  console.log('label');
-  const { contador } = useContext(Context)
+const Componente2 = () => {
+  const valor1 = useContext(Context1)
+  const valor2 = useContext(Context2)
   return (
-    <h1>{contador}</h1>
+    <div>{`${valor1} ${valor2}`}</div>
   )
 }
 
 const App = () => {
 
   return (
-    <ContadorProvider>
-      <Label />
-      <Incrementar />
-      <Decrementar />    
-    </ContadorProvider>
+    <Provider>
+      <Componente />
+      <Componente2 />
+    </Provider>
   );
 }
 
